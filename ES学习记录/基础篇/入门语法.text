@@ -1,0 +1,170 @@
+
+GET _cluster/health
+
+GET /_cat/health?v
+
+## 查看索引：
+GET /_cat/indices?v
+
+## 创建索引
+PUT /test_index?pretty
+
+## 删除索引
+DELETE /test_index?pretty
+
+## 商品的CRUD操作
+
+### 新增商品
+PUT /ecommerce/product/1
+{
+    "name" : "gaolujie yagao",
+    "desc" :  "gaoxiao meibai",
+    "price" :  30,
+    "producer" :      "gaolujie producer",
+    "tags": [ "meibai", "fangzhu" ]
+}
+
+PUT /ecommerce/product/2
+{
+    "name" : "jiajieshi yagao",
+    "desc" :  "youxiao fangzhu",
+    "price" :  25,
+    "producer" :      "jiajieshi producer",
+    "tags": [ "fangzhu" ]
+}
+
+PUT /ecommerce/product/3
+{
+    "name" : "zhonghua yagao",
+    "desc" :  "caoben zhiwu",
+    "price" :  40,
+    "producer" :      "zhonghua producer",
+    "tags": [ "qingxin" ]
+}
+
+PUT /ecommerce/product/4
+{
+    "name" : "zhonghua yagao",
+    "desc" :  "caoben zhiwuzhiwu zhiliao",
+    "price" :  50,
+    "producer" :      "yagao producer",
+    "tags": [ "qingxin" ]
+}
+
+### 查询商品：检索文档
+GET /ecommerce/product/1
+
+## 搜索全部商品：
+GET /ecommerce/product/_search
+
+## 搜索商品名称中包含yagao的商品，而且按照售价降序排序,默认升序
+GET /ecommerce/product/_search?q=name:yagao&sort=price:desc
+
+## 查询所有的商品
+GET /ecommerce/product/_search
+{
+  "query": { "match_all": {} }
+}
+## 查询名称包含yagao的商品，同时按照价格降序排序
+GET /ecommerce/product/_search
+{
+    "query" : {
+        "match" : {
+            "name" : "yagao"
+        }
+    },
+    "sort": [
+        { "price": "desc" }
+    ]
+}
+
+## 分页查询商品，总共3条商品，假设每页就显示1条商品，现在显示第2页，所以就查出来第2个商品
+GET /ecommerce/product/_search
+{
+  "query": { "match_all": {} },
+  "from": 1,
+  "size": 1
+}
+
+## 指定要查询出来字段 商品的名称和价格就可以
+GET /ecommerce/product/_search
+{
+  "query": { "match_all": {} },
+  "_source": ["name", "price"]
+}
+
+## 搜索商品名称包含yagao，而且售价大于25元的商品
+GET /ecommerce/product/_search
+{
+    "query" : {
+        "bool" : {
+            "must" : {
+                "match" : {
+                    "name" : "yagao"
+                }
+            },
+            "filter" : {
+                "range" : {
+                    "price" : { "gt" : 25 }
+                }
+            }
+        }
+    }
+}
+## 全文检索
+GET /ecommerce/product/_search
+{
+    "query" : {
+        "match" : {
+            "producer" : "yagao producer"
+        }
+    }
+}
+
+## 短语搜索
+GET /ecommerce/product/_search
+{
+    "query" : {
+        "match_phrase" : {
+            "producer" : "yagao"
+        }
+    }
+}
+## 高亮搜索结果
+GET /ecommerce/product/_search
+{
+    "query" : {
+        "match" : {
+            "producer" : "producer"
+        }
+    },
+    "highlight": {
+        "fields" : {
+            "producer" : {}
+        }
+    }
+}
+
+
+### 修改商品：替换文档
+PUT /ecommerce/product/1
+{
+    "name" : "jiaqiangban gaolujie yagao",
+    "desc" :  "gaoxiao meibai",
+    "price" :  30,
+    "producer" :      "gaolujie producer",
+    "tags": [ "meibai", "fangzhu" ]
+}
+
+### 修改商品：更新文档
+POST /ecommerce/product/1/_update
+{
+  "doc": {
+    "name": "jiaqiangban gaolujie yagao1"
+  }
+}
+
+### 删除商品：删除文档
+DELETE /ecommerce/product/1
+
+
